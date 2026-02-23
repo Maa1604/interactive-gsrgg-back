@@ -16,7 +16,6 @@ pip install vllm huggingface_hub openai fastapi uvicorn python-multipart scikit-
 ```bash
 huggingface-cli login
 ```
-then paste your HF_TOKEN 
 
 
 4. **Deploy medgemma-1.5-4b-it on port 8000**
