@@ -1,26 +1,27 @@
-1. **create environment**
+1. **Create environment**
 
 ```bash
 conda create -n medgemma python=3.12 -y
 conda activate medgemma                                        
 ```
 
-2. **install vllm & Dependencies**
+2. **Install Dependencies**
 
 ```bash
 pip install vllm huggingface_hub openai fastapi uvicorn python-multipart scikit-learn
 ```
 
-3. **huggingface login**
+3. **Huggingface login**
 
 ```bash
 huggingface-cli login
 ```
-the paste your HF_TOKEN 
+then paste your HF_TOKEN 
 
 
 4. **Deploy medgemma-1.5-4b-it on port 8000**
 
+```bash
 vllm serve google/medgemma-1.5-4b-it \
   --trust-remote-code \
   --dtype bfloat16 \
@@ -28,19 +29,24 @@ vllm serve google/medgemma-1.5-4b-it \
   --host 127.0.0.1 \
   --port 8000 \
   --gpu-memory-utilization 0.77
-
+```
 
 5. **Deploy medsiglip on port 9000**
 
+```bash
 python medsiglip_server.py
-
+```
 
 6. **NGINX**
+
+Update your package index and install the Nginx web server to the system.
 
 ```bash
 sudo apt update
 sudo apt install nginx -y
 ```
+
+Open the default site configuration file to define how Nginx should handle incoming traffic and routing.
 
 ```bash
 sudo nano /etc/nginx/sites-available/default
@@ -87,7 +93,7 @@ server {
 }
 ```
 
-
+Restart the Nginx service to apply your new configuration and start routing traffic.
 
 ```bash
 sudo systemctl restart nginx
@@ -96,11 +102,13 @@ sudo systemctl restart nginx
 
 6. **AUTOSTART**
 
-
+First, ensure that Nginx is set to start automatically whenever the system boots up.
 
 ```bash
 sudo systemctl enable nginx
 ```
+
+Create a new shell script that will handle the initialization of your tmux sessions and model environments.
 
 ```bash
 nano ~/auto_start.sh
@@ -136,14 +144,17 @@ tmux send-keys -t $SESSION:0.1 "conda activate medgemma" C-m
 # Run Python (Port 9000)
 tmux send-keys -t $SESSION:0.1 "python medsiglip_server.py" C-m
 ```
+Make the script executable so the system has permission to run it.
 
 ```bash
 chmod +x ~/auto_start.sh
 ```
+Open the crontab editor to schedule the script to run at startup.
 
 ```bash
 crontab -e
 ```
+Add this line to the bottom of your crontab file to trigger the script every time the server restarts.
 
 ```bash
 @reboot /bin/bash /home/ubuntu/auto_start.sh
